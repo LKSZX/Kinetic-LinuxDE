@@ -1,0 +1,16 @@
+# 编译生成的二进制程序
+kinetic-compositor
+kinetic-panel
+
+# CMake 产生的施工废料
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.o
+
+# 编辑器和系统的临时文件
+.qt/
+*.swp
+.DS_Store
