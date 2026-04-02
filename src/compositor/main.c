@@ -1,6 +1,7 @@
 #include <wlr/types/wlr_output_layout.h>
 #include "input.h"
 #include "server.h"
+#include "window.h"
 #include <stdio.h>
 
 
@@ -24,24 +25,29 @@ void server_new_output(struct wl_listener *listener, void *data) {
 }
 
 int main() {
-    // 1. 基础初始化
-    server.wl_display = wl_display_create();
+   server.wl_display = wl_display_create();
     server.backend = wlr_backend_autocreate(server.wl_display, NULL);
     server.renderer = wlr_renderer_autocreate(server.backend);
     server.allocator = wlr_allocator_autocreate(server.backend, server.renderer);
-    
-    // 2. 创建 1920x1200 的逻辑空间（Layout）
-    server.output_layout = wlr_output_layout_create();
-   
 
-    // 3. 调用你的新模块：初始化输入
+    // 2. 创建 1920x1200 布局
+    server.output_layout = wlr_output_layout_create();
+
+    // 3. 初始化场景图 (Scene Graph) - 只写一次！
+    server.scene = wlr_scene_create();
+    wlr_scene_attach_output_layout(server.scene, server.output_layout);
+
+    // 4. 调用你的窗口模块 (这一行就替代了之前所有的 shell 初始化代码)
+    kinetic_window_init(&server);
+
+    // 5. 初始化输入
     kinetic_input_init(&server);
 
-    // 4. 设置显示器监听
+    // 6. 设置显示器监听
     server.new_output.notify = server_new_output;
     wl_signal_add(&server.backend->events.new_output, &server.new_output);
 
-    // 5. 启动并运行
+    // 7. 启动并运行
     const char *socket = wl_display_add_socket_auto(server.wl_display);
     wlr_backend_start(server.backend);
     printf("Kinetic Compositor 运行中！Socket: %s\n", socket);
